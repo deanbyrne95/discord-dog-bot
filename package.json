@@ -1,0 +1,25 @@
+{
+  "name": "discord-dog-bot",
+  "version": "1.0.0",
+  "description": "Dog Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deanbyrne95/discord-dog-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deanbyrne95/discord-dog-bot/issues"
+  },
+  "homepage": "https://github.com/deanbyrne95/discord-dog-bot#readme",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "querystring": "^0.2.1",
+    "r2": "^2.0.1"
+  }
+}
