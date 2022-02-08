@@ -1,3 +1,4 @@
 {
-  "dog_bot_token": "Dog API Token"
+  "dog_bot_token": "Dog Bot Token",
+  "dog_api_token": "Dog API Token"
 }
