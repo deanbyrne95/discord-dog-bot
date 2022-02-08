@@ -1,0 +1,57 @@
+{
+  "dog_emojis": [
+    {"emoji": ":dog:", "reaction": ["🐶"]},
+    {"emoji": ":dog2:", "reaction": ["🐕"]},
+    {"emoji": ":service_dog:", "reaction": ["🐕‍🦺"]},
+    {"emoji": ":guide_dog:", "reaction": ["🦮"]},
+    {"emoji": ":poodle:", "reaction": ["🐩"]},
+    {"emoji": ":feet:", "reaction": ["🐾"]},
+    {"emoji": ":hotdog:", "reaction": ["🌭"]},
+    {"emoji": ":wolf:", "reaction": ["🐺"]},
+    {"emoji": ":regional_indicator_w: :regional_indicator_o: :o2: :regional_indicator_f:", "reaction": ["🇼", "🇴", "🅾️", "🇫"]},
+    {"emoji": ":regional_indicator_b: :regional_indicator_a: :regional_indicator_r: :regional_indicator_k:", "reaction": ["🇧", "🇦", "🇷", "🇰"]},
+    {"emoji": ":regional_indicator_b: :regional_indicator_o: :regional_indicator_r: :regional_indicator_k:", "reaction": ["🇧", "🇴", "🇷", "🇰"]},
+    {"emoji": ":regional_indicator_a: :regional_indicator_w: :regional_indicator_o: :o2:", "reaction": ["🇦", "🇼", "🇴", "🅾️"]},
+    {"emoji": ":regional_indicator_y: :regional_indicator_i: :regional_indicator_p:", "reaction": ["🇾", "🇮", "🇵"]},
+    {"emoji": ":regional_indicator_a: :regional_indicator_r: :regional_indicator_f:", "reaction": ["🇦", "🇷", "🇫"]},
+    {"emoji": ":regional_indicator_g: :regional_indicator_r: :regional_indicator_o: :regional_indicator_w: :regional_indicator_l:", "reaction": ["🇬", "🇷", "🇴", "🇼", "🇱"]}
+  ],
+  "dog_activities": [
+    {
+      "name": "",
+      "type": ""
+    },
+    {
+      "name": "Barkify",
+      "type": "LISTENING"
+    },
+    {
+      "name": "World of Woofcraft",
+      "type": "PLAYING"
+    },
+    {
+      "name": "New Woof",
+      "type": "PLAYING"
+    },
+    {
+      "name": "Dogflix",
+      "type": "WATCHING"
+    },
+    {
+      "name": "Dog's Life",
+      "type": "STREAMING",
+      "url": "https://www.twitch.tv/syn_hawk"
+    }
+  ],
+  "dog_pints": [
+    "https://img2.thejournal.ie/inline/3268939/original/?width=500&version=3268939.jpg",
+    "http://petloversite.weebly.com/uploads/6/1/8/9/6189440/9180613.jpg",
+    "http://c1.thejournal.ie/media/2011/03/PA-8783344.jpg",
+    "https://i.pinimg.com/736x/57/3a/62/573a62ffc29facce6c335d0ba3768d03--guinness-pug.jpg",
+    "https://districtmagazine.ie/wp-content/uploads/2021/11/tonerspub_84142989_481466069398456_5302548702171035964_n.jpg",
+    "https://i.redd.it/yserypnhqvu71.jpg",
+    "https://pbs.twimg.com/media/EQIGTFmXkAAmBlE.jpg",
+    "https://pbs.twimg.com/media/CxzzfkRXUAAVJZw.jpg",
+    "https://pbs.twimg.com/media/Ej0RuAVWAAE7TS1.jpg"
+  ]
+}
