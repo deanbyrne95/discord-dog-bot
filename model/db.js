@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const dbURI = process.env.MONGO_URI || require('../config.json').mongo_uri
+const dbURI = process.env.mongo_uri || require('../config.json').mongo_uri
 
 mongoose.connect(dbURI, {useUnifiedTopology: true, useNewUrlParser: true});
 
