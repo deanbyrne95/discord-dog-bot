@@ -1,6 +1,6 @@
 {
   "name": "discord-dog-bot",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Dog Discord Bot",
   "main": "index.js",
   "scripts": {
