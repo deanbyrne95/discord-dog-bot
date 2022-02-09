@@ -22,7 +22,7 @@ client.on('error', error => {
 
 client.on('message', receivedMessage => {
     if (receivedMessage.author !== client.user) {
-        if (receivedMessage.content.startsWith('!')) {
+        if (receivedMessage.content.startsWith('£')) {
             processCommand(receivedMessage)
         }
     }
@@ -52,7 +52,7 @@ function processCommand(receivedMessage) {
     let primaryCommand = splitCommand[0]
     let arguments = splitCommand.slice(1)
 
-    console.log(`'!${primaryCommand}' command received${arguments.length > 0 ? ` with arguments '${arguments}'` : ''}`)
+    console.log(`'£${primaryCommand}' command received${arguments.length > 0 ? ` with arguments '${arguments}'` : ''}`)
 
     searchCommands(receivedMessage, primaryCommand, arguments)
 }
@@ -62,7 +62,7 @@ function searchCommands(receivedMessage, primaryCommand, arguments) {
         react(receivedMessage)
         knownCommands[primaryCommand].action(receivedMessage, arguments)
     } else {
-        sendMessage(receivedMessage, `\`!${primaryCommand}\` is not a known command. Please try \`!help\``)
+        sendMessage(receivedMessage, `\`£${primaryCommand}\` is not a known command. Please try \`£help\``)
     }
 }
 
@@ -78,7 +78,7 @@ function commandsCommand(receivedMessage) {
     let commands = ''
     Object.keys(knownCommands).sort().forEach((command) => {
         if (command !== '') {
-            commands = commands.concat(`> \`!${command}\`${knownCommands[command].arguments ? '*\`[arguments]\`*' : ''} - ${knownCommands[command].desc}\n`)
+            commands = commands.concat(`> \`£${command}\`${knownCommands[command].arguments ? '*\`[arguments]\`*' : ''} - ${knownCommands[command].desc}\n`)
         }
     })
     sendMessage(receivedMessage, `Arf! Here is a list of all commands.\n${commands}`)
