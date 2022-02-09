@@ -1,5 +1,7 @@
 const Discord = require('discord.js')
 const r2 = require('r2')
+require('./model/db')
+const DiscordUser = require('./model/discord-user')
 
 const client = new Discord.Client()
 
@@ -30,6 +32,15 @@ client.on('message', receivedMessage => {
 
 let dogTimer = setInterval(() => {changeActivity()}, 1800000)
 
+const lonelyTimer = (getRandomInt(10, 50) * 100000)
+let dogLonely = setInterval(async () => {await lonely()}, lonelyTimer)
+
+const boredTimer = (getRandomInt(10, 50) * 100000)
+let dogBored = setInterval(async () => {await bored()}, boredTimer)
+
+const hungerTimer = (getRandomInt(10, 50) * 100000)
+let dogHunger = setInterval(async () => {await hunger()}, hungerTimer)
+
 function changeActivity() {
     let randomActivity = getRandomArrayItem(dogActivities)
     console.log(`Changing activity to type '${randomActivity.type}' activity '${randomActivity.name}'`)
@@ -40,6 +51,36 @@ function changeActivity() {
         () => {},
         (error) => console.error(error)
     )
+}
+
+async function lonely() {
+    let users;
+    users = await getUsers()
+    for (const user of users) {
+        console.log(`I'm lonely ${user.username}!`)
+        user.dogStatus = downgradeDogStatus(user.dogStatus, getRandomInt(0, 1))
+        await editUser(user)
+    }
+}
+
+async function bored() {
+    let users;
+    users = await getUsers()
+    for (const user of users) {
+        console.log(`I'm bored ${user.username}!`)
+        user.dogStatus = downgradeDogStatus(user.dogStatus, 0, getRandomInt(0, 1))
+        await editUser(user)
+    }
+}
+
+async function hunger() {
+    let users;
+    users = await getUsers()
+    for (const user of users) {
+        console.log(`I'm hungry ${user.username}!`)
+        user.dogStatus = downgradeDogStatus(user.dogStatus, 0, 0, getRandomInt(0, 2))
+        await editUser(user)
+    }
 }
 
 function getRandomArrayItem(array) {
@@ -118,28 +159,122 @@ function returnBark(receivedMessage, arguments) {
     return bark
 }
 
-function petCommand(receivedMessage, arguments) {
-    // TODO: Future feature
+async function petCommand(receivedMessage) {
+    let user;
+    if (await userExists(receivedMessage.author.tag)) {
+        user = await getUser(receivedMessage.author.tag)
+    } else {
+        user = await createUser(receivedMessage)
+    }
+    pet(receivedMessage, user)
+    await editUser(user)
+    sendMessage(receivedMessage, '... :heart:', true)
 }
 
-function walkCommand(receivedMessage, arguments) {
-    // TODO: Future feature
+function pet(receivedMessage, user) {
+    console.log(`${user.username} pet me!`)
+    user.dogStatus = upgradeDogStatus(user.dogStatus, 1)
 }
 
-function playCommand(receivedMessage, arguments) {
-    // TODO: Future feature
+async function walkCommand(receivedMessage) {
+    let user;
+    if (await userExists(receivedMessage.author.tag)) {
+        user = await getUser(receivedMessage.author.tag)
+    } else {
+        user = await createUser(receivedMessage)
+    }
+    walk(receivedMessage, user)
+    await editUser(user)
+    sendMessage(receivedMessage, 'Yip Yip!! :guide_dog:', true)
 }
 
-function statusCommand(receivedMessage, arguments) {
-    // TODO: Future feature
+function walk(receivedMessage, user) {
+    console.log(`${user.username} brought me for a walk!`)
+    user.dogStatus = upgradeDogStatus(user.dogStatus, 1, 1)
 }
 
-function feedCommand(receivedMessage, arguments) {
-    // TODO: Future feature
+async function playCommand(receivedMessage) {
+    let user;
+    if (await userExists(receivedMessage.author.tag)) {
+        user = await getUser(receivedMessage.author.tag)
+    } else {
+        user = await createUser(receivedMessage)
+    }
+    play(receivedMessage, user)
+    await editUser(user)
+    sendMessage(receivedMessage, 'Woof woof!! :tennis:', true)
 }
 
-function levelCommand(receivedMessage, arguments) {
+function play(receivedMessage, user) {
+    console.log(`${user.username} played with me!`)
+    user.dogStatus = upgradeDogStatus(user.dogStatus, 1, 2)
+}
+
+async function feedCommand(receivedMessage) {
+    let user;
+    if (await userExists(receivedMessage.author.tag)) {
+        user = await getUser(receivedMessage.author.tag)
+    } else {
+        user = await createUser(receivedMessage)
+    }
+    feed(receivedMessage, user)
+    await editUser(user)
+    sendMessage(receivedMessage, '... :bone:', true)
+}
+
+function feed(receivedMessage, user) {
+    console.log(`${user.username} fed me!`)
+    user.dogStatus = upgradeDogStatus(user.dogStatus, 1, 0, 1)
+}
+
+function upgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
+    dogStatus.xp += getRandomInt(dogStatus.levelProgress / 100, dogStatus.levelProgress / 10)
+    if (dogStatus.xp >= dogStatus.levelProgress) {
+        dogStatus.xp = 0
+        levelUp(dogStatus)
+    }
+    if (dogStatus.luvs < 10 && luvs > 0) {
+        console.log(`Upgrading luvs by ${luvs}`)
+        dogStatus.luvs += luvs
+    }
+    if (dogStatus.fun < 10 && fun > 0) {
+        console.log(`Upgrading fun by ${fun}`)
+        dogStatus.fun = (dogStatus.fun + fun) > 10 ? 10 : (dogStatus.fun + fun)
+    }
+    if (dogStatus.hunger > 0 && hunger > 0) {
+        console.log(`Upgrading hunger by ${hunger}`)
+        dogStatus.hunger -= hunger
+    }
+    return dogStatus
+}
+
+function downgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
+    if (dogStatus.luvs > 0 && luvs > 0) {
+        console.log(`Downgrading luvs by ${luvs}`)
+        dogStatus.luvs -= luvs
+    }
+    if (dogStatus.fun > 0 && fun > 0) {
+        console.log(`Downgrading fun by ${fun}`)
+        dogStatus.fun -= fun
+    }
+    if (dogStatus.hunger < 10 && hunger > 0) {
+        console.log(`Downgrading hunger by ${hunger}`)
+        dogStatus.hunger = (dogStatus.hunger + hunger) > 10 ? 10 : (dogStatus.hunger + hunger)
+    }
+    return dogStatus
+}
+
+/*function statusCommand(receivedMessage, arguments) {
     // TODO: Future feature
+}*/
+
+/*function levelCommand(receivedMessage, arguments) {
+    // TODO: Future feature
+}*/
+
+function levelUp(dogStatus) {
+    dogStatus.level += 1
+    dogStatus.levelProgress = Math.floor(dogStatus.levelProgress * 1.5)
 }
 
 function react(receivedMessage) {
@@ -179,6 +314,61 @@ function getRandomInt(min, max) {
     min = Math.ceil(min)
     max = Math.floor(max)
     return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+async function createUser(receivedMessage) {
+    const user = new DiscordUser({
+        id: receivedMessage.author.id,
+        username: receivedMessage.author.tag,
+        dogStatus: {
+            level: 1,
+            xp: 0,
+            levelProgress: 100,
+            luvs: 0,
+            fun: 0,
+            hunger: 10
+        }
+    })
+    await user.save()
+    console.log(`Created new user - ${user.toJSON().username}`)
+    return getUser(user.toJSON().username);
+}
+
+async function editUser(user) {
+    await DiscordUser
+        .findOneAndUpdate({
+            username: user.username
+        }, {
+            dogStatus: user.dogStatus
+        }, {
+            new: true,
+            runValidators: true
+        })
+    return getUser(user.username)
+}
+
+async function getUser(username) {
+    const user = await DiscordUser.find({"username": username})
+        .select('-_id -__v')
+        .then((user) => {
+            return user[0]
+        });
+    if (user !== undefined)
+        console.log(`User ${user.username} retrieved`)
+    return user;
+}
+
+async function getUsers() {
+    return await DiscordUser.find()
+        .select('-_id -__v')
+        .then((user) => {
+            return user
+        });
+}
+
+async function userExists(username) {
+    let user = await getUser(username)
+    return user !== null && user !== undefined;
 }
 
 client.login(dog_bot_token).then(
@@ -224,10 +414,26 @@ const knownCommands = {
         'action': genericBarkCommand,
         'arguments': false
     },
-    // 'pet': petCommand,
-    // 'walk': walkCommand,
-    // 'play': playCommand,
+    'pet': {
+        'desc': 'Pet me... if you dare',
+        'action': petCommand,
+        'arguments': false
+    },
+    'walk': {
+        'desc': 'Walk... WALK?! WWAALLKK?!?!',
+        'action': walkCommand,
+        'arguments': false
+    },
+    'play': {
+        'desc': 'It\'s playtime',
+        'action': playCommand,
+        'arguments': false
+    },
+    'feed': {
+        'desc': 'Get in my belly!',
+        'action': feedCommand,
+        'arguments': false
+    }
     // 'status': statusCommand,
-    // 'feed': feedCommand,
     // 'level': levelCommand
 }
