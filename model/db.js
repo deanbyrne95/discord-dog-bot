@@ -1,0 +1,41 @@
+const mongoose = require('mongoose')
+
+const dbURI = process.env.MONGO_URI || require('../config.json').mongo_uri
+
+mongoose.connect(dbURI, {useUnifiedTopology: true, useNewUrlParser: true});
+
+mongoose.connection.on('connected', () => {
+    console.info(`Mongoose connected to ${dbURI}`);
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('Mongoose connection error: ', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.info('Mongoose disconnected');
+});
+
+const gracefulShutdown = (msg, callback) => {
+    mongoose.connection.close(() => {
+        console.info(`Mongoose disconnected through ${msg}`);
+        callback();
+    });
+};
+
+process.once('SIGUSR2', () => {
+    gracefulShutdown('nodemon restart', () => {
+        process.kill(process.pid, 'SIGUSR2');
+    });
+});
+process.on('SIGINT', () => {
+    gracefulShutdown('app termination', () => {
+        process.exit(0);
+    });
+});
+process.on('SIGTERM', () => {
+    gracefulShutdown('Heroku app shutdown', () => {
+        process.exit(0);
+    });
+});
+require('./discord-user')
