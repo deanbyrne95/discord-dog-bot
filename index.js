@@ -160,12 +160,7 @@ function returnBark(receivedMessage, arguments) {
 }
 
 async function petCommand(receivedMessage) {
-    let user;
-    if (await userExists(receivedMessage.author.tag)) {
-        user = await getUser(receivedMessage.author.tag)
-    } else {
-        user = await createUser(receivedMessage)
-    }
+    let user = await userCheck(receivedMessage);
     pet(receivedMessage, user)
     await editUser(user)
     sendMessage(receivedMessage, '... :heart:', true)
@@ -177,12 +172,7 @@ function pet(receivedMessage, user) {
 }
 
 async function walkCommand(receivedMessage) {
-    let user;
-    if (await userExists(receivedMessage.author.tag)) {
-        user = await getUser(receivedMessage.author.tag)
-    } else {
-        user = await createUser(receivedMessage)
-    }
+    let user = await userCheck(receivedMessage)
     walk(receivedMessage, user)
     await editUser(user)
     sendMessage(receivedMessage, 'Yip Yip!! :guide_dog:', true)
@@ -194,12 +184,7 @@ function walk(receivedMessage, user) {
 }
 
 async function playCommand(receivedMessage) {
-    let user;
-    if (await userExists(receivedMessage.author.tag)) {
-        user = await getUser(receivedMessage.author.tag)
-    } else {
-        user = await createUser(receivedMessage)
-    }
+    let user = await userCheck(receivedMessage)
     play(receivedMessage, user)
     await editUser(user)
     sendMessage(receivedMessage, 'Woof woof!! :tennis:', true)
@@ -211,12 +196,7 @@ function play(receivedMessage, user) {
 }
 
 async function feedCommand(receivedMessage) {
-    let user;
-    if (await userExists(receivedMessage.author.tag)) {
-        user = await getUser(receivedMessage.author.tag)
-    } else {
-        user = await createUser(receivedMessage)
-    }
+    let user = await userCheck(receivedMessage)
     feed(receivedMessage, user)
     await editUser(user)
     sendMessage(receivedMessage, '... :bone:', true)
@@ -264,13 +244,119 @@ function downgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
     return dogStatus
 }
 
-/*function statusCommand(receivedMessage, arguments) {
-    // TODO: Future feature
-}*/
+async function statusCommand(receivedMessage) {
+    let user = await userCheck(receivedMessage)
+    let level = getUserLevel(user.dogStatus.level.toString());
+    sendMessage(receivedMessage, 'Here are your stats:', true, {
+        embed: {
+            color: 3447003,
+            author: {
+                name: receivedMessage.author.tag,
+                icon_url: receivedMessage.author.avatarURL
+            },
+            title: 'Dog Status',
+            url: '',
+            description: `Level: ${level}`,
+            fields: [
+                {
+                    name: `Luvs`,
+                    value: processStatus('Luvs', user.dogStatus.luvs)
+                },
+                {
+                    name: 'Fun',
+                    value: processStatus('Fun', user.dogStatus.fun)
+                },
+                {
+                    name: 'Hunger',
+                    value: processStatus('Hunger', user.dogStatus.hunger)
+                },
+                {
+                    name: 'XP',
+                    value: processStatus('XP', user.dogStatus.xp, user.dogStatus.levelProgress)
+                },
+            ],
+            timestamp: new Date(),
+            footer: {
+                icon_url: client.user.avatarURL,
+                text: `Dog API v${config.version}`
+            }
+        }
+    })
+}
 
-/*function levelCommand(receivedMessage, arguments) {
-    // TODO: Future feature
-}*/
+async function infoCommand(receivedMessage) {
+    let user = await getUser(receivedMessage.author.tag, '-_id -__v -dogStatus');
+    sendMessage(receivedMessage, `${user}`, true);
+}
+
+function getUserLevel(level) {
+    let levelArray = level.split('')
+    let levelEmojis = '';
+    levelArray.forEach((num) => {
+        levelEmojis = levelEmojis.concat(`${numberToWord(parseInt(num))}`)
+    })
+    return levelEmojis;
+}
+
+function numberToWord(number) {
+    switch(number) {
+        case 1:
+            return ':one:'
+        case 2:
+            return ':two:'
+        case 3:
+            return ':three:'
+        case 4:
+            return ':four:'
+        case 5:
+            return ':five:'
+        case 6:
+            return ':six:'
+        case 7:
+            return ':seven:'
+        case 8:
+            return ':eight:'
+        case 9:
+            return ':nine:'
+        case 0:
+            return ':nine:'
+        default:
+            return ''
+    }
+}
+
+function processStatus(category, value, limit = 10) {
+    let result = `${value}/${limit}\n`;
+    switch(category) {
+        case 'Luvs':
+            result = result.concat('[').concat(':heart:'.repeat(value))
+                .concat((limit - value) > 0 ? ':black_heart:'.repeat(limit - value) : '')
+                .concat(']')
+            break;
+        case 'Fun':
+            result = result.concat('[').concat(':tennis:'.repeat(value))
+                .concat((limit - value) > 0 ? ':black_circle:'.repeat(limit - value) : '')
+                .concat(']')
+            break;
+        case 'Hunger':
+            // Hunger is different
+            result = result.concat('[')
+                .concat((limit - value) > 0 ? ':bone:'.repeat(limit - value) : '')
+                .concat(':meat_on_bone:'.repeat(value))
+                .concat(']')
+            break;
+        case 'XP':
+            result = result.concat('[').concat(':white_check_mark:'.repeat(Math.floor((value / limit) * 10)))
+                .concat((10 - Math.floor((value / limit) * 10)) > 0 ? ':heavy_check_mark:'.repeat(10 - Math.floor((value / limit) * 10)) : '')
+                .concat(']')
+            break;
+        default:
+            console.error(`Unknown category: ${category}`)
+            result = null;
+            break;
+    }
+    return result;
+}
 
 function levelUp(dogStatus) {
     dogStatus.level += 1
@@ -347,9 +433,9 @@ async function editUser(user) {
     return getUser(user.username)
 }
 
-async function getUser(username) {
+async function getUser(username, exclusions = '-_id -__v') {
     const user = await DiscordUser.find({"username": username})
-        .select('-_id -__v')
+        .select(exclusions)
         .then((user) => {
             return user[0]
         });
@@ -364,6 +450,18 @@ async function getUsers() {
         .then((user) => {
             return user
         });
+}
+
+async function userCheck(receivedMessage) {
+    let user
+    if (await userExists(receivedMessage.author.tag)) {
+        console.log('User exists');
+        user = await getUser(receivedMessage.author.tag)
+    } else {
+        console.log('User does not exist');
+        user = await createUser(receivedMessage)
+    }
+    return user;
 }
 
 async function userExists(username) {
@@ -433,7 +531,15 @@ const knownCommands = {
         'desc': 'Get in my belly!',
         'action': feedCommand,
         'arguments': false
+    },
+    'status': {
+        'desc': 'See how I feel about you!',
+        'action': statusCommand,
+        'arguments': false
+    },
+    'info': {
+        'desc': 'See what I know about you!',
+        'action': infoCommand,
+        'arguments': false
     }
-    // 'status': statusCommand,
-    // 'level': levelCommand
 }
