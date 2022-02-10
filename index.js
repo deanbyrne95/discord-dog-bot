@@ -111,7 +111,7 @@ function helpCommand(receivedMessage, arguments) {
     if (arguments.length === 0) {
         commandsCommand(receivedMessage)
     } else {
-        sendMessage(receivedMessage, `It looks like you need help with ${arguments}. Bark!`, true)
+        sendMessage(receivedMessage, `it looks like you need help with ${arguments}. Bark!`, true)
     }
 }
 
@@ -247,7 +247,7 @@ function downgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
 async function statusCommand(receivedMessage) {
     let user = await userCheck(receivedMessage)
     let level = getUserLevel(user.dogStatus.level.toString());
-    sendMessage(receivedMessage, 'Here are your stats:', true, {
+    sendMessage(receivedMessage, 'here are your stats:', true, {
         embed: {
             color: 3447003,
             author: {
@@ -286,7 +286,7 @@ async function statusCommand(receivedMessage) {
 
 async function infoCommand(receivedMessage) {
     let user = await getUser(receivedMessage.author.tag, '-_id -__v -dogStatus');
-    sendMessage(receivedMessage, `${user}`, true);
+    sendMessage(receivedMessage, `here is your information\n${user}`, true);
 }
 
 function getUserLevel(level) {
@@ -428,7 +428,8 @@ async function editUser(user) {
             dogStatus: user.dogStatus
         }, {
             new: true,
-            runValidators: true
+            runValidators: true,
+            useFindAndModify: false
         })
     return getUser(user.username)
 }
