@@ -10,7 +10,7 @@ function convertMilliseconds(ms) {
 }
 
 function numberToWord(number) {
-    switch(number) {
+    switch (number) {
         case 1:
             return ':one:'
         case 2:
