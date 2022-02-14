@@ -1,5 +1,6 @@
 {
   "dog_bot_token": "Dog Bot Token",
   "dog_api_token": "Dog API Token",
-  "mongo_uri": "MongoDB URI"
+  "mongo_uri": "MongoDB URI",
+  "wake_symbol": "£"
 }
