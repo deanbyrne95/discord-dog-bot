@@ -15,9 +15,9 @@ async function lonely() {
     }
 }
 
-async function performAction(user, message, luvs = 0, fun = 0, hunger = 0) {
+async function performAction(user, message, luvs = 0, fun = 0, hunger = 0, pints = 0) {
     console.log(`${message} ${user.username}!`)
-    user.dogStatus = dogApiService.downgradeDogStatus(user.dogStatus, luvs, fun, hunger)
+    user.dogStatus = dogApiService.downgradeDogStatus(user.dogStatus, luvs, fun, hunger, pints)
     await userService.editUser(user)
 }
 
@@ -32,6 +32,13 @@ async function hunger() {
     let users = await userService.getUsers()
     for (const user of users) {
         await performAction(user, `I'm hungry ${user.username}!`, 0, 0, utilService.getRandomInt(0, 2))
+    }
+}
+
+async function hangry() {
+    let users = await userService.getUsers()
+    for (const user of users) {
+        await performAction(user, `I'm hungry ${user.username}!`, 0, 0, utilService.getRandomInt(0, 2),)
     }
 }
 
@@ -118,8 +125,16 @@ function pet(receivedMessage, user) {
     user.dogStatus = dogApiService.upgradeDogStatus(user.dogStatus, 1)
 }
 
-function pintsCommand(receivedMessage, arguments) {
+async function pintsCommand(receivedMessage, arguments) {
+    let user = await userService.userCheck(receivedMessage)
+    pints(receivedMessage, user)
+    await userService.editUser(user)
     discordApiService.sendMessage(receivedMessage, `Woof${arguments.length > 0 ? '??' : '!! :dog:'}`, true, {files: [utilService.getRandomArrayItem(dogPints)]})
+}
+
+function pints(receivedMessage, user) {
+    console.log(`${user.username} fed me pints!`)
+    user.dogStatus = dogApiService.upgradeDogStatus(user.dogStatus, utilService.getRandomInt(0, 2), utilService.getRandomInt(0, 3), utilService.getRandomInt(0, 1), utilService.getRandomInt(0, 2))
 }
 
 async function playCommand(receivedMessage) {
@@ -164,6 +179,10 @@ async function statusCommand(receivedMessage, arguments, client) {
                     name: 'XP',
                     value: dogApiService.processStatus('XP', user.dogStatus.xp, user.dogStatus.levelProgress)
                 },
+                {
+                    name: 'Pints',
+                    value: dogApiService.processStatus('Pints', user.dogStatus.pints)
+                },
             ],
             timestamp: new Date(),
             footer: {
@@ -188,6 +207,7 @@ function walk(receivedMessage, user) {
 
 module.exports = {
     bored,
+    hangry,
     hunger,
     lonely,
     searchCommands

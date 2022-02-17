@@ -10,5 +10,6 @@ module.exports = mongoose.model('DiscordUser', new mongoose.Schema({
         luvs: {type: Number},
         fun: {type: Number},
         hunger: {type: Number},
+        pints: {type: Number}
     }
 }))
