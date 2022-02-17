@@ -2,18 +2,22 @@ const r2 = require("r2");
 const utilService = require("./util.service");
 const dog_api_token = process.env.NODE_ENV === 'production' ? process.env.dog_api_token : require('./config.json').dog_api_token
 
-function downgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
-    if (dogStatus.luvs > 0 && luvs > 0) {
+function downgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0, pints = 0) {
+    if (utilService.canDowngrade(dogStatus.luvs, luvs)) {
         console.log(`Downgrading luvs by ${luvs}`)
-        dogStatus.luvs -= luvs
+        dogStatus.luvs = (dogStatus.luvs - luvs) < 0 ? 0 : (dogStatus.luvs - luvs)
     }
-    if (dogStatus.fun > 0 && fun > 0) {
+    if (utilService.canDowngrade(dogStatus.fun, fun)) {
         console.log(`Downgrading fun by ${fun}`)
-        dogStatus.fun -= fun
+        dogStatus.fun = (dogStatus.fun - fun) < 0 ? 0 : (dogStatus.fun - fun)
     }
-    if (dogStatus.hunger < 10 && hunger > 0) {
+    if (utilService.canDowngrade(dogStatus.hunger, hunger, true)) {
         console.log(`Downgrading hunger by ${hunger}`)
         dogStatus.hunger = (dogStatus.hunger + hunger) > 10 ? 10 : (dogStatus.hunger + hunger)
+    }
+    if (utilService.canDowngrade(dogStatus.pints, pints)) {
+        console.log(`Downgrading pints by ${pints}`)
+        dogStatus.pints = (dogStatus.pints - pints) < 0 ? 0 : (dogStatus.pints - pints)
     }
     return dogStatus
 }
@@ -38,9 +42,9 @@ async function loadImage(username) {
     }
 }
 
-function processStatus(category, value, limit = 10) {
+function processStatus(category, value = 0, limit = 10) {
     let result = `${value}/${limit}\n`;
-    switch(category) {
+    switch (category) {
         case 'Luvs':
             result = result.concat('[').concat(':heart:'.repeat(value))
                 .concat((limit - value) > 0 ? ':black_heart:'.repeat(limit - value) : '')
@@ -63,6 +67,11 @@ function processStatus(category, value, limit = 10) {
                 .concat((10 - Math.floor((value / limit) * 10)) > 0 ? ':heavy_check_mark:'.repeat(10 - Math.floor((value / limit) * 10)) : '')
                 .concat(']')
             break;
+        case 'Pints':
+            result = result.concat('[').concat(':eyeglasses:'.repeat(value))
+                .concat((limit - value) > 0 ? ':dark_sunglasses:'.repeat(limit - value) : '')
+                .concat(']')
+            break;
         default:
             console.error(`Unknown category: ${category}`)
             result = null;
@@ -71,23 +80,27 @@ function processStatus(category, value, limit = 10) {
     return result;
 }
 
-function upgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0) {
+function upgradeDogStatus(dogStatus, luvs = 0, fun = 0, hunger = 0, pints = 0) {
     dogStatus.xp += utilService.getRandomInt(dogStatus.levelProgress / 100, dogStatus.levelProgress / 10)
     if (dogStatus.xp >= dogStatus.levelProgress) {
         dogStatus.xp = 0
         levelUp(dogStatus)
     }
-    if (dogStatus.luvs < 10 && luvs > 0) {
+    if (utilService.canUpgrade(dogStatus.luvs, luvs)) {
         console.log(`Upgrading luvs by ${luvs}`)
-        dogStatus.luvs += luvs
+        dogStatus.luvs = (dogStatus.luvs + luvs) > 10 ? 10 : (dogStatus.luvs + luvs)
     }
-    if (dogStatus.fun < 10 && fun > 0) {
+    if (utilService.canUpgrade(dogStatus.fun, fun)) {
         console.log(`Upgrading fun by ${fun}`)
         dogStatus.fun = (dogStatus.fun + fun) > 10 ? 10 : (dogStatus.fun + fun)
     }
-    if (dogStatus.hunger > 0 && hunger > 0) {
+    if (utilService.canUpgrade(dogStatus.hunger, hunger, true)) {
         console.log(`Upgrading hunger by ${hunger}`)
-        dogStatus.hunger -= hunger
+        dogStatus.hunger -= (dogStatus.hunger - hunger) < 0 ? 0 : (dogStatus.hunger - hunger)
+    }
+    if (utilService.canUpgrade(dogStatus.pints, pints)) {
+        console.log(`Upgrading pints by ${pints}`)
+        dogStatus.pints = (dogStatus.pints === undefined ? 0 : dogStatus.pints) + pints > 10 ? 10 : (dogStatus.pints === undefined ? 0 : dogStatus.pints) + pints
     }
     return dogStatus
 }

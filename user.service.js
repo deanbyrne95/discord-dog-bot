@@ -10,7 +10,8 @@ async function createUser(receivedMessage) {
             levelProgress: 100,
             luvs: 0,
             fun: 0,
-            hunger: 10
+            hunger: 10,
+            pints: 0
         }
     })
     await user.save().then(
@@ -25,9 +26,10 @@ async function editUser(user) {
         .findOneAndUpdate({
             username: user.username
         }, {
-            dogStatus: user.dogStatus
+            $set: {dogStatus: user.dogStatus}
         }, {
             new: true,
+            upsert: true,
             runValidators: true,
             useFindAndModify: false
         }).then(
