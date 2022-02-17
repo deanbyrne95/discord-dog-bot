@@ -1,5 +1,13 @@
 const {dog_emojis: dogEmojis} = require("./dog.json");
 
+function canDowngrade(status = 0, value = 0, hunger = false, min = 0, max = 10) {
+    return hunger ? status < max && value > min : status > min && value > min;
+}
+
+function canUpgrade(status = 0, value = 0, hunger = false, min = 0, max = 10) {
+    return hunger ? status > min && value > min : status < max && value > min;
+}
+
 function convertMilliseconds(ms) {
     const minutes = Math.round((ms / 60000))
     if (minutes >= 60) {
@@ -65,6 +73,8 @@ function returnBark(receivedMessage, arguments) {
 }
 
 module.exports = {
+    canDowngrade,
+    canUpgrade,
     convertMilliseconds,
     getRandomArrayItem,
     getRandomInt,
